@@ -1,0 +1,122 @@
+#include <stdio.h>
+
+int main() {
+    int P, Q;
+
+    printf("Enter the number of resource types (P): ");
+    scanf("%d", &P);
+
+    printf("Enter the number of processes (Q): ");
+    scanf("%d", &Q);
+
+    int Available[P];
+    int Maximum[Q][P];
+    int Allocation[Q][P];
+    int Need[Q][P];
+    int Work[P];
+    int Finish[Q];
+
+    // Initialize Available array
+    printf("Enter the available resources for each type:\n");
+    for (int i = 0; i < P; i++) {
+        scanf("%d", &Available[i]);
+    }
+
+    // Initialize Maximum matrix
+    printf("Enter the maximum resource need for each process:\n");
+    for (int i = 0; i < Q; i++) {
+        for (int j = 0; j < P; j++) {
+            scanf("%d", &Maximum[i][j]);
+        }
+    }
+
+    // Initialize Allocation matrix
+    printf("Enter the allocated resources for each process:\n");
+    for (int i = 0; i < Q; i++) {
+        for (int j = 0; j < P; j++) {
+            scanf("%d", &Allocation[i][j]);
+        }
+    }
+
+    // Calculate the Need matrix
+    for (int i = 0; i < Q; i++) {
+        for (int j = 0; j < P; j++) {
+            Need[i][j] = Maximum[i][j] - Allocation[i][j];
+        }
+    }
+
+    // Initialize Work and Finish arrays
+    for (int i = 0; i < P; i++) {
+        Work[i] = Available[i];
+    }
+    for (int i = 0; i < Q; i++) {
+        Finish[i] = 0;
+    }
+
+    // Check for a safe state
+    int safe = 1;
+    int sequence[Q];
+    int count = 0;
+
+    for (int k = 0; k < Q; k++) {
+        for (int i = 0; i < Q; i++) {
+            if (Finish[i] == 0) {
+                int safeFlag = 1;
+                for (int j = 0; j < P; j++) {
+                    if (Need[i][j] > Work[j]) {
+                        safeFlag = 0;
+                        break;
+                    }
+                }
+                if (safeFlag) {
+                    for (int j = 0; j < P; j++) {
+                        Work[j] += Allocation[i][j];
+                    }
+                    Finish[i] = 1;
+                    sequence[count++] = i;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < Q; i++) {
+        if (Finish[i] == 0) {
+            safe = 0;
+            break;
+        }
+    }
+
+    if (safe) {
+        printf("System is in a safe state. Safe sequence: ");
+        for (int i = 0; i < Q; i++) {
+            printf("P%d", sequence[i]);
+            if (i < Q - 1) {
+                printf(" -> ");
+            }
+        }
+        printf("\n");
+    } else {
+        printf("System is not in a safe state.\n");
+    }
+
+    return 0;
+}
+
+output:Enter the number of resource types (P): 3
+Enter the number of processes (Q): 5
+Enter the available resources for each type:
+3 3 2
+Enter the maximum resource need for each process:
+7 5 3
+3 2 2
+9 0 2
+2 2 2
+4 3 3
+3 3 2
+Enter the allocated resources for each process:
+0 1 0
+2 0 0
+3 0 2
+2 1 1
+0 0 2
+System is in a safe state. Safe sequence: P1 -> P3 -> P4 -> P0 -> P2
